@@ -296,5 +296,3 @@ This project is implemented as a **single Kaggle notebook**.
 This project is released under the **MIT License** and is intended for **educational and research purposes**.
 
 ---
-
-Just tell me 👍
