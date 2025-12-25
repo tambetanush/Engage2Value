@@ -291,6 +291,15 @@ This project is implemented as a **single Kaggle notebook**.
 
 ---
 
+# 👨‍💻 Author
+Tanush Sudheer Tambe
+
+Final Year Engineering Student
+
+Specialization: IoT + Machine Learning + Data Science
+
+---
+
 ## 📜 License
 
 This project is released under the **MIT License** and is intended for **educational and research purposes**.
