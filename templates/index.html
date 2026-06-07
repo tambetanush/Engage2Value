@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Engage2Value - Advanced Analytics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Premium Google Fonts: Playfair Display & Lora -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700;1,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: ['selector', '.dark-mode'],
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Lora', 'serif'],
+                        display: ['Playfair Display', 'serif'],
+                        mono: ['Space Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Exact HerdPulse Styles */
+        body, nav, .bg-white, .section-card, input, select, textarea, button, table, td, th, a, div, span {
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        body {
+            background-color: #fcfbfa;
+            background-image:
+                radial-gradient(ellipse 60% 40% at 80% 10%, rgba(225, 29, 72, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 60% at 10% 90%, rgba(14, 165, 233, 0.04) 0%, transparent 60%);
+            min-height: 100vh;
+            font-family: 'Lora', serif;
+            color: #1e293b;
+        }
+
+        .font-display { font-family: 'Playfair Display', serif; }
+        .page { display: none; animation: slide-up 0.4s ease forwards; }
+        .page.active { display: block; }
+
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-btn.active {
+            color: #e11d48 !important;
+            border-bottom-color: #e11d48 !important;
+            font-weight: 600;
+        }
+
+        body.dark-mode {
+            background-color: #0b101d !important;
+            background-image:
+                radial-gradient(ellipse 60% 40% at 80% 10%, rgba(225, 29, 72, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 60% at 10% 90%, rgba(14, 165, 233, 0.06) 0%, transparent 60%) !important;
+            color: #f1f5f9 !important;
+        }
+        body.dark-mode nav { background-color: rgba(11, 16, 29, 0.85) !important; border-color: #1e293b !important; }
+        body.dark-mode nav button { color: #94a3b8 !important; }
+        body.dark-mode nav button:hover { color: #f43f5e !important; }
+        body.dark-mode nav button.active { color: #f43f5e !important; border-bottom-color: #f43f5e !important; }
+        
+        body.dark-mode .bg-white, body.dark-mode .glass, body.dark-mode .bg-white\/50 {
+            background-color: #121927 !important;
+            border-color: #1e293b !important;
+            color: #e2e8f0 !important;
+        }
+        body.dark-mode .bg-slate-50, body.dark-mode .bg-slate-100, body.dark-mode input, body.dark-mode select {
+            background-color: #172134 !important;
+            border-color: #243552 !important;
+            color: #f1f5f9 !important;
+        }
+        body.dark-mode .hover\:bg-slate-200:hover {
+            background-color: #1f2d47 !important;
+        }
+        body.dark-mode .text-slate-800, body.dark-mode .text-slate-900 { color: #f1f5f9 !important; }
+        body.dark-mode .text-slate-700 { color: #e2e8f0 !important; }
+        body.dark-mode .text-slate-500, body.dark-mode .text-slate-600 { color: #94a3b8 !important; }
+        body.dark-mode .text-slate-400 { color: #64748b !important; }
+        body.dark-mode .bg-rose-100 { background-color: #2c1a0e !important; color: #f43f5e !important; border-color: #432107 !important; }
+        body.dark-mode .bg-rose-50 { background-color: #1b2e35 !important; color: #f43f5e !important; border-color: #115e59 !important; }
+        body.dark-mode .text-emerald-600 { color: #34d399 !important; }
+        body.dark-mode .bg-emerald-50 { background-color: #064e3b !important; border-color: #065f46 !important; }
+        body.dark-mode .text-rose-900 { color: #fdba74 !important; }
+        
+        body.dark-mode .border-slate-200\/80, body.dark-mode .border-slate-200 { border-color: #1e293b !important; }
+        body.dark-mode .border-slate-200\/50 { border-color: #1e293b !important; }
+        
+        body.dark-mode #theme-toggle { background-color: #172134 !important; border-color: #243552 !important; color: #ffffff !important; }
+        body.dark-mode #theme-toggle:hover { background-color: #1f2d47 !important; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 font-serif antialiased">
+    
+    <!-- Top Nav (HerdPulse style) -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-[95%] mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand / Logo -->
+                <div class="flex items-center gap-3">
+                    <a href="/" class="flex items-center gap-2 group">
+                        <span class="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:scale-105 transition-all duration-300">📊</span>
+                        <span class="text-2xl font-bold font-display tracking-tight text-slate-800">
+                            Engage<span class="text-rose-600 group-hover:text-rose-700 transition-colors italic font-extrabold">2Value</span>
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center gap-8 h-full">
+                    <button data-target="dashboard" class="nav-btn active text-slate-500 hover:text-rose-600 hover:border-slate-300 transition-all duration-200 py-5 text-sm font-medium border-b-2 border-transparent">Dashboard</button>
+                    <button data-target="exploration" class="nav-btn text-slate-500 hover:text-rose-600 hover:border-slate-300 transition-all duration-200 py-5 text-sm font-medium border-b-2 border-transparent">Data Exploration</button>
+                    <button data-target="prediction" class="nav-btn text-slate-500 hover:text-rose-600 hover:border-slate-300 transition-all duration-200 py-5 text-sm font-medium border-b-2 border-transparent">Prediction Form</button>
+                </div>
+
+                <!-- Theme Toggle -->
+                <div class="flex items-center gap-4">
+                    <button id="theme-toggle" class="w-9 h-9 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-lg hover:bg-slate-100 transition-all shadow-sm shrink-0" title="Toggle Dark/Light Mode">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-[95%] mx-auto px-6 lg:px-8 py-8 w-full">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page active space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-6 mb-8 gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold font-display text-slate-900 tracking-tight flex items-center gap-3">
+                        <span>Welcome to <span class="italic text-rose-600">Engage2Value</span></span>
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full font-mono uppercase tracking-widest">Analytics</span>
+                    </h1>
+                    <p class="text-sm font-medium text-slate-500 mt-1 italic">Gain insights and predict purchase values instantly.</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-5">
+                    <div class="w-14 h-14 bg-rose-50 text-rose-600 border border-rose-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner">🔢</div>
+                    <div>
+                        <span id="dash-feature-count" class="text-3xl font-extrabold font-display text-slate-900 tracking-tight">--</span>
+                        <p class="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest font-mono font-bold">Total Features</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-5">
+                    <div class="w-14 h-14 bg-rose-100 text-rose-700 border border-rose-200 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-inner">🎯</div>
+                    <div>
+                        <span class="text-2xl font-extrabold font-display text-slate-900 tracking-tight">purchaseValue</span>
+                        <p class="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest font-mono font-bold">Target Variable</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-5">
+                    <div class="w-14 h-14 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-inner">✓</div>
+                    <div>
+                        <span class="text-2xl font-extrabold font-display text-slate-900 tracking-tight text-emerald-600">Active</span>
+                        <p class="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest font-mono font-bold">Model Status</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Insights -->
+            <div class="bg-white/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+                <h3 class="text-xl font-extrabold font-display text-slate-800 tracking-tight mb-1 flex items-center gap-2">
+                    <span>⚡</span> Key Insights: Global Behavioral Drivers
+                </h3>
+                <p class="text-xs text-slate-400 font-medium mb-6 uppercase tracking-widest font-mono">
+                    Deep Dive into the top two predictive features: pageViews and totalHits
+                </p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    <div class="bg-white border border-slate-200/60 rounded-xl p-5 shadow-sm flex flex-col h-full min-w-0 overflow-hidden">
+                        <h4 class="text-md font-bold text-slate-800 mb-1 font-display">Marginal Effect of <span class="text-rose-600 italic">pageViews</span></h4>
+                        <p class="text-xs text-slate-500 mb-4 h-8">Observe the non-linear plateau effect as page views increase.</p>
+                        <div id="dash-plot-pageviews" class="w-full flex-grow min-h-[300px] flex items-center justify-center text-slate-400 font-mono text-sm">Loading PDP...</div>
+                    </div>
+                    <div class="bg-white border border-slate-200/60 rounded-xl p-5 shadow-sm flex flex-col h-full min-w-0 overflow-hidden">
+                        <h4 class="text-md font-bold text-slate-800 mb-1 font-display">Anomaly Detection in <span class="text-rose-600 italic">totalHits</span></h4>
+                        <p class="text-xs text-slate-500 mb-4 h-8">Isolation Forests highlight anomalous high-hit sessions (Red X).</p>
+                        <div id="dash-plot-totalhits" class="w-full flex-grow min-h-[300px] flex items-center justify-center text-slate-400 font-mono text-sm">Loading Outliers...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Injected README Content matching HerdPulse styling -->
+            <div class="bg-white/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+                <h3 class="text-xl font-extrabold font-display text-slate-800 tracking-tight mb-1 flex items-center gap-2">
+                    <span>🛡️</span> Engage2Value: <span class="italic text-rose-600 font-semibold">From Clicks to Conversions</span>
+                </h3>
+                <p class="text-xs text-slate-400 font-medium mb-5 uppercase tracking-widest font-mono">
+                    Predicting Customer Purchase Value from Multi-Session Digital Behavior
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div class="bg-white border border-slate-200/60 rounded-xl p-5 shadow-sm hover:border-rose-300 transition-all duration-300">
+                        <h4 class="text-sm font-bold text-slate-700 leading-tight mb-2 uppercase tracking-widest font-mono">Problem Statement</h4>
+                        <p class="text-sm text-slate-600">The goal of this project is to predict a customer’s purchase value based on their multi-session behavior across digital touchpoints.</p>
+                        <p class="text-sm text-slate-600 mt-2">The target variable <strong class="text-rose-600">purchaseValue</strong> is extremely right-skewed, highly zero-inflated, and influenced by complex non-linear interactions.</p>
+                    </div>
+                    
+                    <div class="bg-white border border-slate-200/60 rounded-xl p-5 shadow-sm hover:border-rose-300 transition-all duration-300">
+                        <h4 class="text-sm font-bold text-slate-700 leading-tight mb-2 uppercase tracking-widest font-mono">Key Challenges</h4>
+                        <ul class="list-disc pl-4 text-sm text-slate-600 space-y-1">
+                            <li>Heavy class imbalance (majority zero purchase)</li>
+                            <li>Extremely right-skewed target (skew > 50)</li>
+                            <li>High-cardinality categorical features</li>
+                            <li>Risk of data leakage via user/session IDs</li>
+                            <li>Multicollinearity among strong behavioral features</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-6 bg-white border border-slate-200/60 rounded-xl p-5 shadow-sm hover:border-rose-300 transition-all duration-300">
+                    <h4 class="text-sm font-bold text-slate-700 leading-tight mb-2 uppercase tracking-widest font-mono">Feature Engineering & Modeling</h4>
+                    <p class="text-sm text-slate-600">Two parallel datasets were maintained: a Leakage-free dataset and an ID-inclusive dataset for controlled comparison.</p>
+                    <p class="text-sm text-slate-600 mt-2"><strong>Feature Stacking</strong> added major signal through K-Means Clustering and a Binary Purchase Classifier (LightGBM).</p>
+                    <p class="text-sm text-slate-600 mt-2">The final solution utilizes an Ensemble Learning approach achieving a robust <strong class="text-rose-600">~0.70 public R²</strong> without relying on IDs.</p>
+                </div>
+            </div>
+
+            <!-- How to Use This Dashboard -->
+            <div class="bg-white/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm">
+                <h3 class="text-xl font-extrabold font-display text-slate-800 tracking-tight mb-4 flex items-center gap-2">
+                    <span>🧭</span> How to Use This Application
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white border border-slate-200/60 rounded-xl p-5 shadow-sm hover:border-rose-300 transition-all duration-300 flex flex-col h-full">
+                        <h4 class="text-sm font-bold text-rose-700 leading-tight mb-2 uppercase tracking-widest font-mono flex items-center gap-2"><span>🔍</span> Advanced Data Exploration</h4>
+                        <p class="text-sm text-slate-600 mb-2">Navigate to the Data Exploration tab to access enterprise-grade ML interpretability:</p>
+                        <ul class="list-disc pl-4 text-sm text-slate-600 space-y-1">
+                            <li><strong class="text-slate-800">Global SHAP:</strong> See the top 10 features driving the model globally.</li>
+                            <li><strong class="text-slate-800">Isolation Forests:</strong> Detect and highlight anomalous user behavior in red.</li>
+                            <li><strong class="text-slate-800">Partial Dependence Plots:</strong> View the non-linear marginal effect of features.</li>
+                            <li><strong class="text-slate-800">Bivariate Analysis:</strong> Analyze the intersection of two features via cross-tabulation heatmaps and color-coded scatter plots.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white border border-slate-200/60 rounded-xl p-5 shadow-sm hover:border-rose-300 transition-all duration-300 flex flex-col h-full">
+                        <h4 class="text-sm font-bold text-rose-700 leading-tight mb-2 uppercase tracking-widest font-mono flex items-center gap-2"><span>🤖</span> Purchase Prediction</h4>
+                        <p class="text-sm text-slate-600 mb-2">Navigate to the Prediction Form to simulate customer behavior:</p>
+                        <ul class="list-disc pl-4 text-sm text-slate-600 space-y-1">
+                            <li>Manually input session data like browser, hits, and page views.</li>
+                            <li>Use the <strong class="text-slate-800">Randomize Inputs</strong> button to quickly test the model logic.</li>
+                            <li>See the expected purchase value instantly generated by our stacked ensemble model.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Footer -->
+            <div class="text-center pb-12 pt-6">
+                <p class="text-slate-500 text-sm font-medium italic border-t border-slate-200 pt-6 max-w-lg mx-auto">
+                    Built for the Machine Learning Practice Project.<br/>Predict, explore, and convert with confidence.
+                </p>
+            </div>
+        </section>
+
+        <!-- Data Exploration Section -->
+        <section id="exploration" class="page space-y-6">
+            <div class="border-b border-slate-200 pb-6 mb-8">
+                <h1 class="text-3xl font-extrabold font-display text-slate-900 tracking-tight">Advanced <span class="italic text-rose-600">Data Exploration</span></h1>
+                <p class="text-sm font-medium text-slate-500 mt-1 italic">Select a feature to generate statistical inferences, distributions, and SHAP importance.</p>
+            </div>
+            
+            <!-- Global SHAP Summary -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm flex flex-col min-h-[400px]">
+                <h3 class="text-xl font-bold font-display text-slate-800 tracking-tight mb-2 flex items-center gap-2">
+                    <span>🌍</span> Global Feature Importance (SHAP)
+                </h3>
+                <p class="text-sm font-medium text-slate-500 mb-4">Top 10 features driving the predictive model globally across all segments.</p>
+                <div id="plot-global-shap" class="flex-grow min-h-[300px]">
+                    <div class="flex items-center justify-center h-full text-slate-400 font-mono text-sm">Loading global SHAP calculations...</div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-6 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex-1 max-w-md">
+                    <label for="feature-select" class="block font-bold text-slate-700 font-display mb-2">Primary Feature</label>
+                    <select id="feature-select" class="w-full px-4 py-3 rounded-xl bg-slate-50 text-slate-800 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-semibold cursor-pointer">
+                        <option value="">-- Loading Features --</option>
+                    </select>
+                </div>
+                <div class="flex-1 max-w-md hidden" id="secondary-feature-container">
+                    <label for="secondary-feature-select" class="block font-bold text-slate-700 font-display mb-2">Secondary Feature (Interaction)</label>
+                    <select id="secondary-feature-select" class="w-full px-4 py-3 rounded-xl bg-slate-50 text-slate-800 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all font-semibold cursor-pointer">
+                        <option value="">-- Select for Bivariate Analysis --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="exploration-results" class="hidden space-y-6">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm text-center transform hover:-translate-y-0.5 transition-transform">
+                        <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest font-mono mb-2">Data Type</h4>
+                        <span id="stat-type" class="text-xl font-extrabold font-display text-slate-900">--</span>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm text-center transform hover:-translate-y-0.5 transition-transform">
+                        <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest font-mono mb-2">Missing</h4>
+                        <span id="stat-missing" class="text-xl font-extrabold font-display text-slate-900">--%</span>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm text-center transform hover:-translate-y-0.5 transition-transform">
+                        <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest font-mono mb-2">Unique</h4>
+                        <span id="stat-unique" class="text-xl font-extrabold font-display text-slate-900">--</span>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm text-center transform hover:-translate-y-0.5 transition-transform" id="corr-box">
+                        <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest font-mono mb-2">Correlation</h4>
+                        <span id="stat-corr" class="text-xl font-extrabold font-display text-slate-900 text-rose-600">--</span>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-sm text-center transform hover:-translate-y-0.5 transition-transform" id="shap-box">
+                        <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest font-mono mb-2">SHAP Importance</h4>
+                        <span id="stat-shap" class="text-xl font-extrabold font-display text-slate-900 text-rose-600">--</span>
+                    </div>
+                </div>
+
+                <div class="bg-rose-50 border border-rose-200 p-6 rounded-2xl shadow-sm border-l-4 border-l-rose-500">
+                    <h3 class="font-bold text-rose-800 mb-2 font-display text-lg flex items-center gap-2"><span>🤖</span> Automated Inference</h3>
+                    <p id="inference-text" class="text-sm text-rose-900 font-medium">Loading...</p>
+                </div>
+
+                <!-- Subgroup Discovery -->
+                <div id="subgroup-discovery" class="hidden bg-rose-50 border border-rose-200 text-rose-800 p-6 rounded-2xl shadow-sm mb-8 flex gap-4 items-start">
+                    <span class="text-2xl">💡</span>
+                    <div>
+                        <h4 class="font-bold font-display text-lg mb-1 text-rose-900">Automated Subgroup Discovery</h4>
+                        <p id="subgroup-insight" class="text-sm font-medium leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- Dynamic Plotly Charts Grid -->
+                <div id="charts-grid-container" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Charts will be dynamically injected here -->
+                </div>
+
+                <!-- Bivariate Analysis Container -->
+                <div id="bivariate-container" class="hidden mt-8">
+                    <h3 class="text-2xl font-bold font-display text-slate-800 tracking-tight mb-4 flex items-center gap-2">
+                        <span>🔗</span> Feature Interactions (Bivariate)
+                    </h3>
+                    <div id="plot-bivariate" class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm min-h-[400px]"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prediction Section -->
+        <section id="prediction" class="page space-y-6">
+            <div class="border-b border-slate-200 pb-6 mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold font-display text-slate-900 tracking-tight">Purchase <span class="italic text-rose-600">Prediction</span></h1>
+                    <p class="text-sm font-medium text-slate-500 mt-1 italic">Enter feature values or randomize to predict the expected purchase value.</p>
+                </div>
+                <button id="btn-randomize" class="self-start sm:self-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all shadow-sm border border-slate-200 flex items-center gap-2 text-sm">
+                    <span>🎲</span> Randomize Inputs
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-8">
+                <form id="predict-form" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="form-fields">
+                        <!-- Fields will be injected via JS -->
+                    </div>
+                    <div class="pt-6 border-t border-slate-100">
+                        <button type="submit" id="btn-submit" class="w-full sm:w-auto px-10 bg-rose-600 hover:bg-rose-700 text-white font-bold text-lg py-4 rounded-xl transition-all shadow-md transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                            <span>🤖</span> Predict Purchase Value
+                        </button>
+                    </div>
+                </form>
+
+                <div id="prediction-result" class="hidden mt-8 pt-8 border-t border-slate-200 text-center">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-widest font-mono">Predicted Expected Value</h3>
+                    <div class="text-6xl font-extrabold font-display text-emerald-600 mt-2 tracking-tight">
+                        $<span id="predicted-amount">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

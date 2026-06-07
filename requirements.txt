@@ -1,0 +1,10 @@
+flask
+waitress
+pandas
+numpy
+scikit-learn
+joblib
+lightgbm
+shap
+scipy
+category-encoders
