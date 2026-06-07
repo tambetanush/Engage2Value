@@ -19,6 +19,7 @@ To make the machine learning model accessible to business stakeholders, we built
 ### 1. Interactive Dashboard & Real-Time Insights
 
 The landing page provides immediate insights into global behavioral drivers. It automatically generates **Partial Dependence Plots (PDP)** to demonstrate non-linear plateau effects and runs **Isolation Forests** to highlight anomalous high-frequency sessions in red.
+![Dashboard Preview](static/Screenshots/1%20dashboard%201.png)
 ![Dashboard Insights](static/Screenshots/2%20dashboard%202.png)
 
 ### 2. Global Feature Importance (SHAP)
